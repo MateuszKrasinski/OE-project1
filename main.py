@@ -1,26 +1,16 @@
-import math
-from selection import Selection
-from cross import Cross
+import config
+from selection_algorithms import TournamentSelection
+from crossing_algorithms import SinglePointCrossing
 from genetic_algorithm import GeneticAlgorithm
-from mutation import Mutation
-
-POPULATION_AMOUNT = 200
-NUMBER_OF_EPOCHS = 1000
-CROSS_PROBABILITY = 0.8
-MUTATION_PROBABILITY = 0.01
-BOUNDS = [[-1.5, 4.0], [-3.0, 4.0]]
-CHROMOSOME_LENGTH = 32
-
-def objective(x):
-	return math.sin(x[0] + x[1]) + pow((x[0] - x[1]), 2) - 1.5 * x[0] + 2.5 * x[1] + 1
+from mutation_algorithms import AllGenesMutation
 
 if __name__ == '__main__':
+    selection = TournamentSelection()
+    cross = SinglePointCrossing(config.CROSS_PROBABILITY)
+    mutation = AllGenesMutation(config.MUTATION_PROBABILITY)
 
-    selection = Selection()
-    cross = Cross(CROSS_PROBABILITY)
-    mutation = Mutation(MUTATION_PROBABILITY)
-
-    algo = GeneticAlgorithm(objective, BOUNDS, CHROMOSOME_LENGTH, POPULATION_AMOUNT, NUMBER_OF_EPOCHS, selection, cross, mutation )
-    best, score = algo.run()
-    print(best)
+    algorithm = GeneticAlgorithm(config.OBJECTIVE, config.BOUNDS, config.CHROMOSOME_LENGTH,
+                            config.POPULATION_AMOUNT, config.NUMBER_OF_EPOCHS, selection, cross, mutation)
+    best, score = algorithm.run()
+    print(best.decode())
     print(score)
