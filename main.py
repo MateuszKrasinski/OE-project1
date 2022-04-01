@@ -1,11 +1,11 @@
 import config
-from selection_algorithms import TournamentSelection
+from selection_algorithms import TournamentSelection, BestSelection
 from crossing_algorithms import SinglePointCrossing
 from genetic_algorithm import GeneticAlgorithm
 from mutation_algorithms import AllGenesMutation
 
 if __name__ == '__main__':
-    selection = TournamentSelection()
+    selection = BestSelection()
     cross = SinglePointCrossing(config.CROSS_PROBABILITY)
     mutation = AllGenesMutation(config.MUTATION_PROBABILITY)
 
