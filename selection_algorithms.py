@@ -38,3 +38,18 @@ class BestSelection:
         selection = pop.create_next()
         selection.population = pop.population[:selection_ix]
         return selection
+
+# TODO COPOILT DID IT CHECK IT PLEASE
+class RouletteSelection:
+
+    def select(self, pop: Population, func: Function) -> Population:
+        scores = pop.scoreAll(func)
+        selection = pop.create_next()
+        selection.population = [pop.population[i] for i in self.roulette(scores)]
+        return selection
+
+    def roulette(self, scores: list[float]) -> list[int]:
+        roulette = [0]
+        for i in range(1, len(scores)):
+            roulette.append(roulette[i-1] + scores[i-1])
+        return [i for i in range(len(scores)) if roulette[i] > randint(roulette[-1])]

@@ -30,3 +30,42 @@ class SinglePointCrossing (BaseCrossing):
                 parent1.bits[cross_point:]
 
         return [child1, child2]
+
+class DoublePointCrossing (BaseCrossing):
+    def __init__(self, cross_probability):
+        super().__init__(cross_probability)
+
+    def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
+        child1, child2 = parent1.copy(), parent2.copy()
+        if rand() < self.cross_probability:
+            cross_point1 = randint(1, parent1.chromosome_length)
+            cross_point2 = randint(cross_point1, parent1.chromosome_length)
+            child1.bits = parent1[:cross_point1] + \
+                parent2.bits[cross_point1:cross_point2] + \
+                parent1.bits[cross_point2:]
+            child2.bits = parent2[:cross_point1] + \
+                parent1.bits[cross_point1:cross_point2] + \
+                parent2.bits[cross_point2:]
+
+        return [child1, child2]
+
+class TriplePointCrossing (BaseCrossing):
+    def __init__(self, cross_probability):
+        super().__init__(cross_probability)
+
+    def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
+        child1, child2 = parent1.copy(), parent2.copy()
+        if rand() < self.cross_probability:
+            cross_point1 = randint(1, parent1.chromosome_length)
+            cross_point2 = randint(cross_point1, parent1.chromosome_length)
+            cross_point3 = randint(cross_point2, parent1.chromosome_length)
+            child1.bits = parent1[:cross_point1] + \
+                parent2.bits[cross_point1:cross_point2] + \
+                parent1.bits[cross_point2:cross_point3] + \
+                parent2.bits[cross_point3:]
+            child2.bits = parent2[:cross_point1] + \
+                parent1.bits[cross_point1:cross_point2] + \
+                parent2.bits[cross_point2:cross_point3] + \
+                parent1.bits[cross_point3:]
+
+        return [child1, child2]
