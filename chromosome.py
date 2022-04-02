@@ -50,6 +50,7 @@ class Chromosome:
 
     def __str__(self) -> str:
         return str(self.bits)
-
+    def __len__(self):
+        return self.chromosome_length
 
 ChromosomeList = list[Chromosome]

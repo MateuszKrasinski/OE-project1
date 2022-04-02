@@ -15,7 +15,7 @@ class BaseSelection (ABC):
         pass
 
 
-class TournamentSelection:
+class TournamentSelection (BaseSelection):
 
     def tournament(self, population: Population, scores: list[float], k=3) -> Chromosome:
         selection_ix = randint(population)
@@ -30,7 +30,7 @@ class TournamentSelection:
         selection.population = [self.tournament(pop, scores) for _ in range(pop)]
         return selection
 
-class BestSelection:
+class BestSelection (BaseSelection):
 
     def select(self, pop: Population, func: Function) -> Population:
         selection_ix = pop.size
@@ -40,7 +40,7 @@ class BestSelection:
         return selection
 
 # TODO COPOILT DID IT CHECK IT PLEASE
-class RouletteSelection:
+class RouletteSelection (BaseSelection):
 
     def select(self, pop: Population, func: Function) -> Population:
         scores = pop.scoreAll(func)

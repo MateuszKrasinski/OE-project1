@@ -24,27 +24,27 @@ class SingleGeneMutation (BaseMutation):
     def __init__(self, mutation_probability):
         super().__init__(mutation_probability)
 
-    def mutate(self, chromosome: Chromosome) -> Chromosome:
+    def mutate(self, chromosome: Chromosome) -> None:
         if rand() < self.mutation_probability:
             idx = randint(0, len(chromosome))
             chromosome[idx] = 1 - chromosome[idx]
 
-class inversionMutation (BaseMutation):
+class InversionMutation (BaseMutation):
     def __init__(self, mutation_probability):
         super().__init__(mutation_probability)
 
-    def mutate(self, chromosome: Chromosome) -> Chromosome:
+    def mutate(self, chromosome: Chromosome) -> None:
         if rand() < self.mutation_probability:
             idx1 = randint(0, randint(1, len(chromosome)))
             idx2 = randint(idx1, len(chromosome))
             chromosome[idx1:idx2] = chromosome[idx1:idx2][::-1]
 
 
-class boundaryMutation (BaseMutation):
+class BoundaryMutation (BaseMutation):
     def __init__(self, mutation_probability):
         super().__init__(mutation_probability)
 
-    def mutate(self, chromosome: Chromosome) -> Chromosome:
+    def mutate(self, chromosome: Chromosome) -> None:
         if rand() < self.mutation_probability:
             helpRand = randint(-1,1)
             if helpRand < 0:
@@ -52,11 +52,11 @@ class boundaryMutation (BaseMutation):
             else:
                 chromosome[-1] = 1 - chromosome[-1]
 
-class doubleMutation (BaseMutation):
+class DoubleMutation (BaseMutation):
     def __init__(self, mutation_probability):
         super().__init__(mutation_probability)
 
-    def mutate(self, chromosome: Chromosome) -> Chromosome:
+    def mutate(self, chromosome: Chromosome) -> None:
         if rand() < self.mutation_probability:
             idx1 = randint(0, len(chromosome))
             idx2 = randint(0, len(chromosome))
