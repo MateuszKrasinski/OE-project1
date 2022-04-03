@@ -1,12 +1,5 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import messagebox
-
-import chromosome
-import crossing_algorithms
-import genetic_algorithm
-import mutation_algorithms
-import population
 
 
 class Gui:

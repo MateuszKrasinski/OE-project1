@@ -117,3 +117,6 @@ class GeneticAlgorithm:
         self.draw_plot_best()
         self.draw_plot_avg()
         self.draw_plot_sd()
+        self.file.close()
+        self.file_avg.close()
+        self.file_standard_deviation.close()
