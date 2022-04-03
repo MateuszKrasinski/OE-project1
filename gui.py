@@ -16,25 +16,25 @@ class Gui:
         self.initializeForm()
 
     def initializeForm(self):
-        # lbl_a1 = tk.Label(self.window, text="a1")
-        # lbl_a1.pack()
-        # a1 = tk.Entry(self.window)
-        # a1.pack()
-        #
-        # lbl_b1 = tk.Label(self.window, text="b1")
-        # lbl_b1.pack()
-        # b1 = tk.Entry(self.window)
-        # b1.pack()
-        #
-        # lbl_a2 = tk.Label(self.window, text="a2")
-        # lbl_a2.pack()
-        # a2 = tk.Entry(self.window)
-        # a2.pack()
-        #
-        # lbl_b2 = tk.Label(self.window, text="b2")
-        # lbl_b2.pack()
-        # b2 = tk.Entry(self.window)
-        # b2.pack()
+        lbl_a1 = tk.Label(self.window, text="a1")
+        lbl_a1.pack()
+        a1 = tk.Entry(self.window)
+        a1.pack()
+
+        lbl_b1 = tk.Label(self.window, text="b1")
+        lbl_b1.pack()
+        b1 = tk.Entry(self.window)
+        b1.pack()
+
+        lbl_a2 = tk.Label(self.window, text="a2")
+        lbl_a2.pack()
+        a2 = tk.Entry(self.window)
+        a2.pack()
+
+        lbl_b2 = tk.Label(self.window, text="b2")
+        lbl_b2.pack()
+        b2 = tk.Entry(self.window)
+        b2.pack()
 
         lbl_epochs = tk.Label(self.window, text="Epochs amount")
         lbl_epochs.pack()
@@ -51,10 +51,20 @@ class Gui:
         bits = tk.Entry(self.window)
         bits.pack()
 
+        lbl_mut_prob = tk.Label(self.window, text="Cross probability")
+        lbl_mut_prob.pack()
+        cross_prob = tk.Entry(self.window)
+        cross_prob.pack()
+
         lbl_mut_prob = tk.Label(self.window, text="Mutation probability")
         lbl_mut_prob.pack()
         mut_prob = tk.Entry(self.window)
         mut_prob.pack()
+
+        lbl_mut_prob = tk.Label(self.window, text="Selection probability")
+        lbl_mut_prob.pack()
+        sel_prob = tk.Entry(self.window)
+        sel_prob.pack()
 
         lbl_inv_prob = tk.Label(self.window, text="Inversion probability")
         lbl_inv_prob .pack()
@@ -90,11 +100,13 @@ class Gui:
         mut.pack()
 
         submit_button = tk.Button(self.window, text='Submit', command=lambda: self.submit(
-            # [[float(a1.get()), float(b1.get())], [float(a2.get()), float(b2.get())]],
+            [[float(a1.get()), float(b1.get())], [float(a2.get()), float(b2.get())]],
             epochs.get(),
             population.get(),
             bits.get(),
+            cross_prob.get(),
             mut_prob.get(),
+            sel_prob.get(),
             inv_prob.get(),
             best_tournament_amount.get(),
             elite_amount.get(),
@@ -108,8 +120,10 @@ class Gui:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.mainloop()
 
-    def submit(self, epochs, pop, bits, mut_prob, inversion_prob, tournament_chromosome, elite_amount, cross, selection, mutation):
-        self.result = epochs, pop, bits, mut_prob, inversion_prob, tournament_chromosome, elite_amount, cross, selection, mutation
+    def submit(self, bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, tournament_chromosome,
+               elite_amount, cross, selection, mutation):
+        self.result = bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, tournament_chromosome, \
+                      elite_amount, cross, selection, mutation
         self.window.quit()
 
     def pop(self, time):
