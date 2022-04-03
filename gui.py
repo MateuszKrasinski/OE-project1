@@ -5,6 +5,8 @@ import crossing_algorithms
 import genetic_algorithm
 import mutation_algorithms
 import population
+import selection_algorithms
+import config
 
 def initializeForm():
     window = tk.Tk()
@@ -24,7 +26,22 @@ def initializeForm():
     bits = tk.Entry(window)
     bits.pack()
 
+    lbl_begin = tk.Label(window, text="Begin")
+    lbl_begin.pack()
+    begin = tk.Entry(window)
+    begin.pack()
+
+    lbl_end = tk.Label(window, text="End")
+    lbl_end.pack()
+    end = tk.Entry(window)
+    end.pack()
+
     lbl_cross_prob = tk.Label(window, text="Mutation probability %")
+    lbl_cross_prob.pack()
+    mutation_prob = tk.Entry(window)
+    mutation_prob.pack()
+
+    lbl_cross_prob = tk.Label(window, text="Cross probability %")
     lbl_cross_prob.pack()
     cross_prob = tk.Entry(window)
     cross_prob.pack()
@@ -70,26 +87,79 @@ def initializeForm():
         epochs.get(),
         population.get(),
         bits.get(),
+        begin.get(),
+        end.get(),
         cross_prob.get(),
-        tournament_chrom.get(),
+        mutation_prob.get(),
         sel.get(),
         cross.get(),
         mut.get(),
-        best_proc.get(),
         elitist_proc.get(),
-        inversion.get(),
-    ))
+        inversion.get()
+    )
+                              )
     submit_button.pack()
 
     window.title('Generic algorithm')
-    window.geometry("250x550+10+10")
+    window.geometry("250x620+10+10")
     window.mainloop()
 
 
-def submit(epochs, population, bits, tournament_chromosome, mut_prob, selection, cross,
-           mutation, best_proc, function, elitist_proc, inversion):
-    # TODO: submiting values
+def submit(epochs, population, bits, begin, end, cross_prob,  mutation_prob, selection, cross,
+           mutation, elitist_proc, inversion):
+    gen = genetic_algorithm.GeneticAlgorithm(objective_fun=config.OBJECTIVE,
+                                             bounds=[[begin, end]],
+                                             chromosome_length= int(bits),
+                                             population_number=int(population),
+                                             epoch=int(epochs),
+                                             selectionStategy=chooseSelectionMethods(selection),
+                                             crossStrategy=chooseCrossMethods(cross),
+                                             mutationStrategy=chooseMutationMethods(mutation),
+                                             )
+    gen.run()
 
+def chooseSelectionMethods(method):
+    return {
+        "Best": selection_algorithms.BestSelection.select(),
+        "Tournament": selection_algorithms.TournamentSelection.tournament,
+        "Roulette": selection_algorithms.RouletteSelection.roulette
+    }[method]
+
+def chooseCrossMethods(method):
+    return {
+        "One point": crossing_algorithms.SinglePointCrossing.cross,
+        "Two point": crossing_algorithms.DoublePointCrossing.cross,
+        "Three point": crossing_algorithms.TriplePointCrossing.cross,
+        #"Homogeneous":
+    }[method]
+
+def chooseMutationMethods(method):
+    return {
+        "One point": mutation_algorithms.SingleGeneMutation.mutate,
+        "Two point": mutation_algorithms.doubleMutation.mutate,
+        "Boundary": mutation_algorithms.boundaryMutation.mutate,
+        "Inversion": mutation_algorithms.inversionMutation.mutate
+    }[method]
+
+def showResult(mean, timer):
+    window = tk.Tk()
+
+    lbl = tk.Label(window, text="Mean | Standard deviation")
+    lbl.pack()
+    mean_label = tk.Label(window, text=mean)
+    mean_label.pack()
+
+    lbl = tk.Label(window, text="Execution time")
+    lbl.pack()
+    time_label = tk.Label(window, text=timer)
+    time_label.pack()
+
+    quit_button = tk.Button(window, text='Close', command=window.destroy)
+    quit_button.pack()
+
+    window.title('Results')
+    window.geometry("250x200+10+10")
+    window.mainloop()
 
 if __name__ == '__main__':
     initializeForm()
