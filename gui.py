@@ -127,4 +127,5 @@ class Gui:
         self.result = None
         self.window.destroy()
 if __name__ == '__main__':
-    initializeForm()
+    gui = Gui()
+    gui.initializeForm()

@@ -95,6 +95,7 @@ class GeneticAlgorithm:
         next_epoch = self.population.create_next()
         for i in range(0, self.population, 2):
             # get selected parents in pairs
+            parent1, parent2 = self.population[i], self.population[i + 1]
             # crossover and mutation
             for c in self.crossing_strategy.cross(parent1, parent2):
                 self.mutation_strategy.mutate(c)
