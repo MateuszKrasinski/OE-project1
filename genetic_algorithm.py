@@ -1,3 +1,4 @@
+import os
 import random
 
 import numpy as np
@@ -33,9 +34,11 @@ class GeneticAlgorithm:
         self.standard_deviations = []
         self.standard_deviation = 0
         self.avgs = []
+        os.makedirs(os.path.dirname('results/genetic_file.txt'), exist_ok=True)
         self.file = open('results/genetic_file.txt', 'w')
         self.file_avg = open('results/avg.txt', 'w')
         self.file_standard_deviation = open('results/standard_deviation.txt', 'w')
+        self.population_without_elites = len(self.population.population) - self.elite_strategy.elite_strategy_amount
 
     def evaluation(self):
         self.scores = self.population.scoreAll(self.objective)
@@ -80,26 +83,29 @@ class GeneticAlgorithm:
     def add_elites_to_population(self):
         self.elite_strategy.add_elites(self.population)
 
-    def cross_and_mutate(self) -> Population:
+    def cross(self) -> Population:
         next_epoch = self.population.create_next()
-        for i in range(0, self.population, 2):
-            # get selected parents in pairs
-            parent1, parent2 = self.population[i], self.population[i + 1]
-            # crossover and mutation
+        # next_epoch.population = self.population.population
+        number_of_parents = len(self.population.population)
+        while len(next_epoch.population) < self.population_without_elites:
+            parent1, parent2 = self.population.population[random.randint(0, number_of_parents - 1)], \
+                               self.population.population[random.randint(0, number_of_parents - 1)]
             for c in self.crossing_strategy.cross(parent1, parent2):
-                self.mutation_strategy.mutate(c)
-                self.inversion_strategy.inversion(c)
                 next_epoch.append(c)
         return next_epoch
+
+    def mutate(self):
+        for c in self.population.population:
+            self.mutation_strategy.mutate(c)
+            self.inversion_strategy.inversion(c)
 
     def run(self) -> list[int, float]:
         for epoch_number in range(self.epochs_amount):
             self.remove_elites_from_population()
             self.evaluation()
             self.selection()
-            # print(len(self.population.population))
-            self.population = self.cross_and_mutate()
-            # print(len(self.population.population))
+            self.population = self.cross()
+            self.mutate()
             self.add_elites_to_population()
             print(epoch_number, self.best_eval, self.avg, self.standard_deviation, len(self.population.population))
             self.file.write("%s %s\n" % (epoch_number, self.best_eval))

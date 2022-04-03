@@ -19,7 +19,7 @@ if __name__ == '__main__':
             mutation = mutation_enum(mutation_str)(config.MUTATION_PROBABILITY)
             elite_strategy = EliteStrategy(config.ELITE_AMOUNT)
             inversion_strategy = InversionMutation(config.INVERSION_PROBABILITY)
-            selection = Selection[selection_str].value
+            selection = Selection[selection_str].value(config.SELECTION_PROBABILITY)
             algorithm = GeneticAlgorithm(config.OBJECTIVE, config.BOUNDS, config.CHROMOSOME_LENGTH,
                                          config.POPULATION_AMOUNT, config.NUMBER_OF_EPOCHS, selection, cross, mutation,
                                          elite_strategy, inversion_strategy)
