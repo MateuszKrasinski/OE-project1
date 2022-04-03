@@ -1,5 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import messagebox
+
 import chromosome
 import crossing_algorithms
 import genetic_algorithm
@@ -8,158 +10,123 @@ import population
 import selection_algorithms
 import config
 
-def initializeForm():
-    window = tk.Tk()
+class Gui:
+    def __init__(self):
+        self.result = None
+        self.window = tk.Tk()
+        self.initializeForm()
 
-    lbl_epochs = tk.Label(window, text="Epochs amount")
-    lbl_epochs.pack()
-    epochs = tk.Entry(window)
-    epochs.pack()
+    def initializeForm(self):
+        # lbl_a1 = tk.Label(self.window, text="a1")
+        # lbl_a1.pack()
+        # a1 = tk.Entry(self.window)
+        # a1.pack()
+        #
+        # lbl_b1 = tk.Label(self.window, text="b1")
+        # lbl_b1.pack()
+        # b1 = tk.Entry(self.window)
+        # b1.pack()
+        #
+        # lbl_a2 = tk.Label(self.window, text="a2")
+        # lbl_a2.pack()
+        # a2 = tk.Entry(self.window)
+        # a2.pack()
+        #
+        # lbl_b2 = tk.Label(self.window, text="b2")
+        # lbl_b2.pack()
+        # b2 = tk.Entry(self.window)
+        # b2.pack()
 
-    lbl_population = tk.Label(window, text="Population amount")
-    lbl_population.pack()
-    population = tk.Entry(window)
-    population.pack()
+        lbl_epochs = tk.Label(self.window, text="Epochs amount")
+        lbl_epochs.pack()
+        epochs = tk.Entry(self.window)
+        epochs.pack()
 
-    lbl_bits = tk.Label(window, text="Number of bits")
-    lbl_bits.pack()
-    bits = tk.Entry(window)
-    bits.pack()
+        lbl_population = tk.Label(self.window, text="Population amount")
+        lbl_population.pack()
+        population = tk.Entry(self.window)
+        population.pack()
 
-    lbl_begin = tk.Label(window, text="Begin")
-    lbl_begin.pack()
-    begin = tk.Entry(window)
-    begin.pack()
+        lbl_bits = tk.Label(self.window, text="Number of bits")
+        lbl_bits.pack()
+        bits = tk.Entry(self.window)
+        bits.pack()
 
-    lbl_end = tk.Label(window, text="End")
-    lbl_end.pack()
-    end = tk.Entry(window)
-    end.pack()
+        lbl_mut_prob = tk.Label(self.window, text="Mutation probability")
+        lbl_mut_prob.pack()
+        mut_prob = tk.Entry(self.window)
+        mut_prob.pack()
 
-    lbl_cross_prob = tk.Label(window, text="Mutation probability %")
-    lbl_cross_prob.pack()
-    mutation_prob = tk.Entry(window)
-    mutation_prob.pack()
+        lbl_inv_prob = tk.Label(self.window, text="Inversion probability")
+        lbl_inv_prob .pack()
+        inv_prob = tk.Entry(self.window)
+        inv_prob .pack()
 
-    lbl_cross_prob = tk.Label(window, text="Cross probability %")
-    lbl_cross_prob.pack()
-    cross_prob = tk.Entry(window)
-    cross_prob.pack()
+        lbl_best_amount = tk.Label(self.window, text="Best and tournament chromosomes amount")
+        lbl_best_amount.pack()
+        best_tournament_amount = tk.Entry(self.window)
+        best_tournament_amount.pack()
 
-    lbl_best_proc = tk.Label(window, text="Best selection procent %")
-    lbl_best_proc.pack()
-    best_proc = tk.Entry(window)
-    best_proc.pack()
+        lbl_elitist = tk.Label(self.window, text="Elitist strategy amount")
+        lbl_elitist.pack()
+        elite_amount = tk.Entry(self.window)
+        elite_amount.pack()
 
-    lbl_elitist = tk.Label(window, text="Elitist strategy  %")
-    lbl_elitist.pack()
-    elitist_proc = tk.Entry(window)
-    elitist_proc.pack()
+        lbl_selection = tk.Label(self.window, text="Selection method")
+        lbl_selection.pack()
+        selection_method = ("Best", "Tournament", "Roulette")
+        sel = ttk.Combobox(self.window, values=selection_method)
+        sel.pack()
 
-    lbl_tournament_chrom = tk.Label(window, text="Tournament chromosome amount")
-    lbl_tournament_chrom.pack()
-    tournament_chrom = tk.Entry(window)
-    tournament_chrom.pack()
+        lbl_crossover = tk.Label(self.window, text="Crossover method")
+        lbl_crossover.pack()
+        cross_method = ("One point", "Two point", "Three point", "Homogeneous")
+        cross = ttk.Combobox(self.window, values=cross_method)
+        cross.pack()
 
-    lbl_selection = tk.Label(window, text="Selection method")
-    lbl_selection.pack()
-    selection_method = ("Best", "Tournament", "Roulette")
-    sel = ttk.Combobox(window, values=selection_method)
-    sel.pack()
+        lbl_mutation = tk.Label(self.window, text="Mutation method")
+        lbl_mutation.pack()
+        mutation_method = ("One point", "Two point", "Boundary", "All")
+        mut = ttk.Combobox(self.window, values=mutation_method)
+        mut.pack()
 
-    lbl_crossover = tk.Label(window, text="Crossover method")
-    lbl_crossover.pack()
-    cross_method = ("One point", "Two point", "Three point", "Homogeneous")
-    cross = ttk.Combobox(window, values=cross_method)
-    cross.pack()
+        submit_button = tk.Button(self.window, text='Submit', command=lambda: self.submit(
+            # [[float(a1.get()), float(b1.get())], [float(a2.get()), float(b2.get())]],
+            epochs.get(),
+            population.get(),
+            bits.get(),
+            mut_prob.get(),
+            inv_prob.get(),
+            best_tournament_amount.get(),
+            elite_amount.get(),
+            sel.get(),
+            cross.get(),
+            mut.get(),
+        ))
+        submit_button.pack()
+        self.window.title('Generic algorithm')
+        self.window.geometry("250x850+10+10")
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.window.mainloop()
 
-    lbl_mutation = tk.Label(window, text="Mutation method")
-    lbl_mutation.pack()
-    mutation_method = ("One point", "Two point", "Boundary")
-    mut = ttk.Combobox(window, values=mutation_method)
-    mut.pack()
+    def submit(self, epochs, pop, bits, mut_prob, inversion_prob, tournament_chromosome, elite_amount, cross, selection, mutation):
+        self.result = epochs, pop, bits, mut_prob, inversion_prob, tournament_chromosome, elite_amount, cross, selection, mutation
+        self.window.quit()
 
-    inversion = tk.IntVar()
-    inv = tk.Checkbutton(window, text="Inversion", variable=inversion)
-    inv.pack()
+    def pop(self, time):
+        self.popup_window(time)
+        self.window.mainloop()
 
-    submit_button = tk.Button(window, text='Submit', command=lambda: submit(
-        epochs.get(),
-        population.get(),
-        bits.get(),
-        begin.get(),
-        end.get(),
-        cross_prob.get(),
-        mutation_prob.get(),
-        sel.get(),
-        cross.get(),
-        mut.get(),
-        elitist_proc.get(),
-        inversion.get()
-    )
-                              )
-    submit_button.pack()
+    def popup_window(self, time):
+        window = tk.Toplevel()
+        label = tk.Label(window, text=time)
+        label.pack(fill='x', padx=50, pady=5)
+        button_close = tk.Button(window, text="Close", command=window.destroy)
+        button_close.pack(fill='x')
 
-    window.title('Generic algorithm')
-    window.geometry("250x620+10+10")
-    window.mainloop()
-
-
-def submit(epochs, population, bits, begin, end, cross_prob,  mutation_prob, selection, cross,
-           mutation, elitist_proc, inversion):
-    gen = genetic_algorithm.GeneticAlgorithm(objective_fun=config.OBJECTIVE,
-                                             bounds=[[begin, end]],
-                                             chromosome_length= int(bits),
-                                             population_number=int(population),
-                                             epoch=int(epochs),
-                                             selectionStategy=chooseSelectionMethods(selection),
-                                             crossStrategy=chooseCrossMethods(cross),
-                                             mutationStrategy=chooseMutationMethods(mutation),
-                                             )
-    gen.run()
-
-def chooseSelectionMethods(method):
-    return {
-        "Best": selection_algorithms.BestSelection.select(),
-        "Tournament": selection_algorithms.TournamentSelection.tournament,
-        "Roulette": selection_algorithms.RouletteSelection.roulette
-    }[method]
-
-def chooseCrossMethods(method):
-    return {
-        "One point": crossing_algorithms.SinglePointCrossing.cross,
-        "Two point": crossing_algorithms.DoublePointCrossing.cross,
-        "Three point": crossing_algorithms.TriplePointCrossing.cross,
-        #"Homogeneous":
-    }[method]
-
-def chooseMutationMethods(method):
-    return {
-        "One point": mutation_algorithms.SingleGeneMutation.mutate,
-        "Two point": mutation_algorithms.doubleMutation.mutate,
-        "Boundary": mutation_algorithms.boundaryMutation.mutate,
-        "Inversion": mutation_algorithms.inversionMutation.mutate
-    }[method]
-
-def showResult(mean, timer):
-    window = tk.Tk()
-
-    lbl = tk.Label(window, text="Mean | Standard deviation")
-    lbl.pack()
-    mean_label = tk.Label(window, text=mean)
-    mean_label.pack()
-
-    lbl = tk.Label(window, text="Execution time")
-    lbl.pack()
-    time_label = tk.Label(window, text=timer)
-    time_label.pack()
-
-    quit_button = tk.Button(window, text='Close', command=window.destroy)
-    quit_button.pack()
-
-    window.title('Results')
-    window.geometry("250x200+10+10")
-    window.mainloop()
-
+    def on_closing(self):
+        self.result = None
+        self.window.destroy()
 if __name__ == '__main__':
-    initializeForm()
+    gui = Gui()
+    gui.initializeForm()

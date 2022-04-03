@@ -1,25 +1,26 @@
 from abc import ABC
+from enum import Enum
 from pyclbr import Function
 from numpy.random import randint
 from abc import ABC, abstractmethod
-
+import numpy as np
 import config
 from chromosome import Chromosome
 
 from population import Population
 
 
-class BaseSelection (ABC):
+class BaseSelection(ABC):
     @abstractmethod
     def select(self, pop: Population, func: Function) -> Population:
         pass
 
 
-class TournamentSelection:
+class TournamentSelection(BaseSelection):
 
     def tournament(self, population: Population, scores: list[float], k=3) -> Chromosome:
         selection_ix = randint(population)
-        for ix in randint(0, population, k-1):
+        for ix in randint(0, population, k - 1):
             if scores[ix] < scores[selection_ix]:
                 selection_ix = ix
         return population[selection_ix]
@@ -30,17 +31,19 @@ class TournamentSelection:
         selection.population = [self.tournament(pop, scores) for _ in range(pop)]
         return selection
 
-class BestSelection:
+
+class BestSelection(BaseSelection):
 
     def select(self, pop: Population, func: Function) -> Population:
         selection_ix = pop.size
         pop.population.sort(key=lambda x: x.score(config.OBJECTIVE))
         selection = pop.create_next()
-        selection.population = pop.population[:selection_ix]
+        selection.population = pop.population[:int(selection_ix*0.2)]
         return selection
 
+
 # TODO COPOILT DID IT CHECK IT PLEASE
-class RouletteSelection:
+class RouletteSelection(BaseSelection):
 
     # def select(self, pop: Population, func: Function) -> Population:
     #     scores = pop.scoreAll(func)
@@ -55,9 +58,8 @@ class RouletteSelection:
     #     return [i for i in range(len(scores)) if roulette[i] > randint(roulette[-1])]
 
     def calculateDistribution(self, population):
-        min_func_val = min(population.decodeAll())
-        scale = abs(min_func_val) + 1 if min_func_val < 0 else 0
-        values = [1 / (ind.decode() + scale) for ind in population]
+        # min_func_val = min(p.decode() for p in population)
+        values = [1 / (ind.score(config.OBJECTIVE)) for ind in population]
         sum_func = sum(1 / v for v in values)
         # prawdopodobienstwa dla kazdego osobnika
         probabilities = [val / sum_func for val in values]
@@ -67,8 +69,8 @@ class RouletteSelection:
             distributions.append(distributions[i - 1] + probabilities[i])
         return distributions
 
-    def rouletteSelection(self, population):
-        distributions = self.calculateDistributions(self, population)
+    def select(self, population, func: Function) -> Population:
+        distributions = self.calculateDistribution(population)
         values = tuple(zip(population, distributions))
         random_prob = np.random.uniform(min(distributions), max(distributions))
         result = values[0][0]
@@ -78,3 +80,9 @@ class RouletteSelection:
             else:
                 break
         return result
+
+class Selection(Enum):
+    Best = BestSelection()
+    Tournament = TournamentSelection()
+    Roulette = RouletteSelection()
+
