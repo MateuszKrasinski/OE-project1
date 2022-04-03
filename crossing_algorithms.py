@@ -69,3 +69,14 @@ class TriplePointCrossing (BaseCrossing):
                 parent1.bits[cross_point3:]
 
         return [child1, child2]
+
+
+def crossing_enum(string):
+    if string == "One point":
+        return SinglePointCrossing
+    if string == "Two point":
+        return DoublePointCrossing
+    if string == "Three point":
+        return TriplePointCrossing
+    if string == "Homogeneous":
+        return SinglePointCrossing
