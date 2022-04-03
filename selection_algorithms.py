@@ -1,4 +1,5 @@
 from abc import ABC
+from enum import Enum
 from pyclbr import Function
 from numpy.random import randint
 from abc import ABC, abstractmethod
@@ -9,17 +10,17 @@ from chromosome import Chromosome
 from population import Population
 
 
-class BaseSelection (ABC):
+class BaseSelection(ABC):
     @abstractmethod
     def select(self, pop: Population, func: Function) -> Population:
         pass
 
 
-class TournamentSelection (BaseSelection):
+class TournamentSelection(BaseSelection):
 
     def tournament(self, population: Population, scores: list[float], k=3) -> Chromosome:
         selection_ix = randint(population)
-        for ix in randint(0, population, k-1):
+        for ix in randint(0, population, k - 1):
             if scores[ix] < scores[selection_ix]:
                 selection_ix = ix
         return population[selection_ix]
@@ -30,17 +31,19 @@ class TournamentSelection (BaseSelection):
         selection.population = [self.tournament(pop, scores) for _ in range(pop)]
         return selection
 
-class BestSelection (BaseSelection):
+
+class BestSelection(BaseSelection):
 
     def select(self, pop: Population, func: Function) -> Population:
         selection_ix = pop.size
         pop.population.sort(key=lambda x: x.score(config.OBJECTIVE))
         selection = pop.create_next()
-        selection.population = pop.population[:selection_ix]
+        selection.population = pop.population[:int(selection_ix*0.2)]
         return selection
 
+
 # TODO COPOILT DID IT CHECK IT PLEASE
-class RouletteSelection (BaseSelection):
+class RouletteSelection(BaseSelection):
 
     def select(self, pop: Population, func: Function) -> Population:
         scores = pop.scoreAll(func)
@@ -51,5 +54,11 @@ class RouletteSelection (BaseSelection):
     def roulette(self, scores: list[float]) -> list[int]:
         roulette = [0]
         for i in range(1, len(scores)):
-            roulette.append(roulette[i-1] + scores[i-1])
+            roulette.append(roulette[i - 1] + scores[i - 1])
         return [i for i in range(len(scores)) if roulette[i] > randint(roulette[-1])]
+
+
+class Selection(Enum):
+    Best = BestSelection()
+    Tournament = TournamentSelection()
+    Roulette = RouletteSelection()
