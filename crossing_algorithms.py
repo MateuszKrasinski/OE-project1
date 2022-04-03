@@ -70,6 +70,18 @@ class TriplePointCrossing (BaseCrossing):
 
         return [child1, child2]
 
+class UniformCrossing (BaseCrossing):
+    def __init__(self, cross_probability):
+        super().__init__(cross_probability)
+
+    def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
+        child1, child2 = parent1.copy(), parent2.copy()
+        if rand() < self.cross_probability:
+            for i in range(parent1.chromosome_length, 2):
+                    child1.bits[i], child2.bits[i] = child2.bits[i], child1.bits[i]
+
+        return [child1, child2]
+
 
 def crossing_enum(string):
     if string == "One point":
