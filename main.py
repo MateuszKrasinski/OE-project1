@@ -1,10 +1,10 @@
 import time
 import config
-from selection_algorithms import TournamentSelection, BestSelection, RouletteSelection, Selection
-from crossing_algorithms import SinglePointCrossing, DoublePointCrossing, TriplePointCrossing, crossing_enum
+from selection_algorithms import Selection
+from crossing_algorithms import crossing_enum
 from genetic_algorithm import GeneticAlgorithm
 from elite_algorithm import EliteStrategy
-from mutation_algorithms import AllGenesMutation, SingleGeneMutation, DoubleMutation, BoundaryMutation, mutation_enum
+from mutation_algorithms import mutation_enum
 from inversion import InversionMutation
 from gui import Gui
 
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     while True:
         if gui.result is not None:
             start = time.time()
-            bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, tournament_chromosomes,\
+            bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob,\
                 elite_amount, selection_str, cross_str, mutation_str = gui.result
             cross = crossing_enum(cross_str)(float(cross_prob))
             mutation = mutation_enum(mutation_str)(float(mut_prob))

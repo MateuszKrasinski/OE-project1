@@ -71,12 +71,7 @@ class Gui:
         inv_prob = tk.Entry(self.window)
         inv_prob .pack()
 
-        lbl_best_amount = tk.Label(self.window, text="Best and tournament chromosomes amount")
-        lbl_best_amount.pack()
-        best_tournament_amount = tk.Entry(self.window)
-        best_tournament_amount.pack()
-
-        lbl_elitist = tk.Label(self.window, text="Elitist strategy amount")
+        lbl_elitist = tk.Label(self.window, text="Elite strategy amount")
         lbl_elitist.pack()
         elite_amount = tk.Entry(self.window)
         elite_amount.pack()
@@ -108,7 +103,6 @@ class Gui:
             mut_prob.get(),
             sel_prob.get(),
             inv_prob.get(),
-            best_tournament_amount.get(),
             elite_amount.get(),
             sel.get(),
             cross.get(),
@@ -120,9 +114,9 @@ class Gui:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.mainloop()
 
-    def submit(self, bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, tournament_chromosome,
+    def submit(self, bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob,
                elite_amount, cross, selection, mutation):
-        self.result = bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, tournament_chromosome, \
+        self.result = bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, \
                       elite_amount, cross, selection, mutation
         self.window.quit()
 
@@ -132,7 +126,7 @@ class Gui:
 
     def popup_window(self, time):
         window = tk.Toplevel()
-        label = tk.Label(window, text=time)
+        label = tk.Label(window, text="Czas wykonania programu:" + str(time) + "s")
         label.pack(fill='x', padx=50, pady=5)
         button_close = tk.Button(window, text="Close", command=window.destroy)
         button_close.pack(fill='x')
@@ -140,5 +134,6 @@ class Gui:
     def on_closing(self):
         self.result = None
         self.window.destroy()
+
 if __name__ == '__main__':
     initializeForm()

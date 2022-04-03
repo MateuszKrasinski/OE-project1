@@ -34,10 +34,10 @@ class GeneticAlgorithm:
         self.standard_deviations = []
         self.standard_deviation = 0
         self.avgs = []
-        os.makedirs(os.path.dirname('results/genetic_file.txt'), exist_ok=True)
-        self.file = open('results/genetic_file.txt', 'w')
-        self.file_avg = open('results/avg.txt', 'w')
-        self.file_standard_deviation = open('results/standard_deviation.txt', 'w')
+        os.makedirs(os.path.dirname('results/'), exist_ok=True)
+        self.file = open('results/best_fitness.txt', 'w+')
+        self.file_avg = open('results/average.txt', 'w+')
+        self.file_standard_deviation = open('results/standard_deviation.txt', 'w+')
         self.population_without_elites = len(self.population.population) - self.elite_strategy.elite_strategy_amount
 
     def evaluation(self):
@@ -57,22 +57,25 @@ class GeneticAlgorithm:
         plt.figure()
         plt.xlabel("epochs")
         plt.ylabel("best fitness")
+        plt.title("Best values on the next epoch")
         plt.plot([i for i in range(len(self.best_evals))], self.best_evals)
         plt.savefig('results/best_fitness.png')
 
     def draw_plot_avg(self):
         plt.figure()
-        plt.xlabel("epochs")
-        plt.ylabel("avg")
+        plt.xlabel("Epochs")
+        plt.ylabel("Average values")
+        plt.title("Average values on the next epoch")
         plt.plot([i for i in range(len(self.avgs))], self.avgs)
-        plt.savefig('results/avgs.png')
+        plt.savefig('results/average.png')
 
     def draw_plot_sd(self):
         plt.figure()
-        plt.xlabel("epochs")
-        plt.ylabel("standard deviation")
+        plt.xlabel("Epochs")
+        plt.ylabel("Standard deviation")
+        plt.title("The standard deviation on the next epoch")
         plt.plot([i for i in range(len(self.standard_deviations))], self.standard_deviations)
-        plt.savefig('results/sd.png')
+        plt.savefig('results/standard_deviation.png')
 
     def selection(self):
         self.population = self.selection_stategy.select(self.population, self.objective)
@@ -107,7 +110,7 @@ class GeneticAlgorithm:
             self.population = self.cross()
             self.mutate()
             self.add_elites_to_population()
-            print(epoch_number, self.best_eval, self.avg, self.standard_deviation, len(self.population.population))
+            # print(epoch_number, self.best_eval, self.avg, self.standard_deviation, len(self.population.population))
             self.file.write("%s %s\n" % (epoch_number, self.best_eval))
             self.file_avg.write("%s %s\n" % (epoch_number, self.avg))
             self.file_standard_deviation.write("%s %s\n" % (epoch_number, self.standard_deviation))
