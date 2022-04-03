@@ -58,10 +58,12 @@ class RouletteSelection(BaseSelection):
     #     return [i for i in range(len(scores)) if roulette[i] > randint(roulette[-1])]
 
     def calculateDistribution(self, population):
-        # min_func_val = min(p.decode() for p in population)
-        values = [1 / (ind.score(config.OBJECTIVE)) for ind in population]
+        min_func_val = min([ind.score(config.OBJECTIVE) for ind in population])
+        scale = abs(min_func_val) + 1 if min_func_val < 0 else 0
+        
+        values = [1 / (ind.score(config.OBJECTIVE) + scale) for ind in population]
         sum_func = sum(1 / v for v in values)
-        # prawdopodobienstwa dla kazdego osobnika
+
         probabilities = [val / sum_func for val in values]
         distributions = [probabilities[0]]
 
