@@ -50,20 +50,10 @@ class BestSelection(BaseSelection):
         return selection
 
 
-# TODO COPOILT DID IT CHECK IT PLEASE
 class RouletteSelection(BaseSelection):
-
-    def calculateDistribution(self, population):
-        # min_func_val = min(p.decode() for p in population)
-        values = [1 / (ind.score(config.OBJECTIVE)) for ind in population]
-        sum_func = sum(1 / v for v in values)
-        # prawdopodobienstwa dla kazdego osobnika
-        probabilities = [val / sum_func for val in values]
-        distributions = [probabilities[0]]
-
-        for i in range(1, len(probabilities)):
-            distributions.append(distributions[i - 1] + probabilities[i])
-        return distributions
+    def __init__(self, selection_probability):
+        super().__init__(selection_probability)
+        self.distributions = []
 
     def calculateDistribution(self, population):
         min_func_val = min([ind.score(config.OBJECTIVE) for ind in population])
@@ -80,9 +70,8 @@ class RouletteSelection(BaseSelection):
         return distributions
 
     def roulette(self, population) -> Population:
-        distributions = self.calculateDistribution(population)
-        values = tuple(zip(population, distributions))
-        random_prob = np.random.uniform(min(distributions), max(distributions))
+        values = tuple(zip(population, self.distributions))
+        random_prob = np.random.uniform(min(self.distributions), max(self.distributions))
         result = values[0][0]
         for ind, d in values:
             if d < random_prob:
@@ -92,7 +81,7 @@ class RouletteSelection(BaseSelection):
         return result
 
     def select(self, pop: Population, func: Function) -> Population:
-        scores = pop.scoreAll(func)
+        self.distributions = self.calculateDistribution(pop)
         selection = pop.create_next()
         selection.population = [self.roulette(pop) for _ in range(int(len(pop.population) * self.selection_probability ))]
         return selection
