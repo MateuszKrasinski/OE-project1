@@ -39,7 +39,7 @@ class Gui:
         population = tk.Entry(self.window)
         population.pack()
 
-        lbl_bits = tk.Label(self.window, text="Number of bits")
+        lbl_bits = tk.Label(self.window, text="Chromosome precision")
         lbl_bits.pack()
         bits = tk.Entry(self.window)
         bits.pack()
@@ -59,10 +59,15 @@ class Gui:
         sel_prob = tk.Entry(self.window)
         sel_prob.pack()
 
-        lbl_inv_prob = tk.Label(self.window, text="Inversion probability")
-        lbl_inv_prob .pack()
-        inv_prob = tk.Entry(self.window)
-        inv_prob .pack()
+        lbl_alpha = tk.Label(self.window, text="Alpha")
+        lbl_alpha.pack()
+        alpha = tk.Entry(self.window)
+        alpha.pack()
+
+        lbl_beta = tk.Label(self.window, text="Beta")
+        lbl_beta.pack()
+        beta = tk.Entry(self.window)
+        beta.pack()
 
         lbl_elitist = tk.Label(self.window, text="Elite strategy amount")
         lbl_elitist.pack()
@@ -77,13 +82,13 @@ class Gui:
 
         lbl_crossover = tk.Label(self.window, text="Crossover method")
         lbl_crossover.pack()
-        cross_method = ("One point", "Two point", "Three point", "Homogeneous")
+        cross_method = ("Arithmetic", "Linear", "Average", "Blend Alpha", "Blend Alpha Beta")
         cross = ttk.Combobox(self.window, values=cross_method)
         cross.pack()
 
         lbl_mutation = tk.Label(self.window, text="Mutation method")
         lbl_mutation.pack()
-        mutation_method = ("One point", "Two point", "Boundary", "All")
+        mutation_method = ("Uniform", "Gaussian")
         mut = ttk.Combobox(self.window, values=mutation_method)
         mut.pack()
 
@@ -95,11 +100,12 @@ class Gui:
             cross_prob.get(),
             mut_prob.get(),
             sel_prob.get(),
-            inv_prob.get(),
             elite_amount.get(),
             sel.get(),
             cross.get(),
             mut.get(),
+            alpha.get(),
+            beta.get()
         ))
         submit_button.pack()
         self.window.title('Generic algorithm')
@@ -107,10 +113,10 @@ class Gui:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.mainloop()
 
-    def submit(self, bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob,
-               elite_amount, cross, selection, mutation):
-        self.result = bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, inversion_prob, \
-                      elite_amount, cross, selection, mutation
+    def submit(self, bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob,
+               elite_amount, cross, selection, mutation, alpha, beta):
+        self.result = bounds, epochs, pop, bits, cross_prob, mut_prob, sel_prob, \
+                      elite_amount, cross, selection, mutation, alpha, beta
         self.window.quit()
 
     def pop(self, time):

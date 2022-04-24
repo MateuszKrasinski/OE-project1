@@ -1,8 +1,8 @@
-
+import random
 from abc import ABC, abstractmethod
-from audioop import cross
-from numpy.random import randint
 from numpy.random import rand
+
+import config
 from chromosome import Chromosome, ChromosomeList
 
 
@@ -15,80 +15,140 @@ class BaseCrossing(ABC):
     def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
         pass
 
+class AverageCross(BaseCrossing):
+    def __init__(self, cross_probability):
+        super().__init__(cross_probability)
 
-class SinglePointCrossing (BaseCrossing):
+    def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
+        child1 = parent1.copy()
+        if rand() < self.cross_probability:
+            x1 = parent1.first_gene
+            y1 = parent1.second_gene
+            x2 = parent2.first_gene
+            y2 = parent2.second_gene
+            x1_new = (x1 + x2) / 2
+            y1_new = (y1 + y2) / 2
+            child1.set_first_gene(x1_new)
+            child1.set_second_gene(y1_new)
+
+            if child1.areGenesInBounds():
+                return [child1]
+        return [parent1]
+
+
+class ArithmeticCross(BaseCrossing):
     def __init__(self, cross_probability):
         super().__init__(cross_probability)
 
     def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
         child1, child2 = parent1.copy(), parent2.copy()
         if rand() < self.cross_probability:
-            cross_point = randint(1, parent1.chromosome_length)
-            child1.bits = parent1.bits[:cross_point] + \
-                parent2.bits[cross_point:]
-            child2.bits = parent2.bits[:cross_point] + \
-                parent1.bits[cross_point:]
+            x1 = parent1.first_gene
+            y1 = parent1.second_gene
+            x2 = parent2.first_gene
+            y2 = parent2.second_gene
+            k = random.uniform(0, 1)
+            child1.set_first_gene(k * x1 + (1 - k) * x2)
+            child1.set_second_gene(k * y1 + (1 - k) * y2)
+            child2.set_first_gene((1 - k) * x1 + k * x2)
+            child2.set_second_gene((1 - k) * y1 + k * y2)
+            if child1.areGenesInBounds() and child2.areGenesInBounds():
+                return [child1, child2]
+        return [parent1, parent2]
 
-        return [child1, child2]
 
-class DoublePointCrossing (BaseCrossing):
+class LinearCross(BaseCrossing):
     def __init__(self, cross_probability):
         super().__init__(cross_probability)
 
     def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
-        child1, child2 = parent1.copy(), parent2.copy()
+        child1, child2, child3 = parent1.copy(), parent2.copy(), parent2.copy()
+        children = []
         if rand() < self.cross_probability:
-            cross_point1 = randint(1, parent1.chromosome_length)
-            cross_point2 = randint(cross_point1, parent1.chromosome_length)
-            child1.bits = parent1[:cross_point1] + \
-                parent2.bits[cross_point1:cross_point2] + \
-                parent1.bits[cross_point2:]
-            child2.bits = parent2[:cross_point1] + \
-                parent1.bits[cross_point1:cross_point2] + \
-                parent2.bits[cross_point2:]
+            x1 = parent1.first_gene
+            y1 = parent1.second_gene
+            x2 = parent2.first_gene
+            y2 = parent2.second_gene
+            k = random.uniform(0, 1)
+            child1.set_first_gene(1 / 2 * x1 + 1 / 2 * x2)
+            child1.set_second_gene(1 / 2 * y1 + 1 / 2 * y2)
+            children.append(child1)
+            child2.set_first_gene(3 / 2 * x1 - 1 / 2 * x2)
+            child2.set_second_gene(3 / 2 * y1 - 1 / 2 * y2)
+            children.append(child2)
+            child3.set_first_gene(-1 / 2 * x1 + 3 / 2 * x2)
+            child3.set_second_gene(-1 / 2 * y1 + 3 / 2 * y2)
+            children.append(child3)
+            children.sort(key=lambda x: x.score(config.OBJECTIVE))
+            if children[0].areGenesInBounds() and children[1].areGenesInBounds():
+                return children[:2]
+        return [parent1, parent2]
 
-        return [child1, child2]
 
-class TriplePointCrossing (BaseCrossing):
-    def __init__(self, cross_probability):
+class BlendCrossAlpha(BaseCrossing):
+    def __init__(self, cross_probability, alpha):
         super().__init__(cross_probability)
+        self.alpha = alpha
+
+    def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
+        child1, child2, child3 = parent1.copy(), parent2.copy(), parent2.copy()
+        children = []
+        if rand() < self.cross_probability:
+            x1 = parent1.first_gene
+            y1 = parent1.second_gene
+            x2 = parent2.first_gene
+            y2 = parent2.second_gene
+            d1 = abs(x1 - x2)
+            d2 = abs(y1 - y2)
+            x1_new = random.uniform((min(x1, x2) - self.alpha * d1), (max(x1, x2) - self.alpha * d1))
+            y1_new = random.uniform((min(y1, y2) - self.alpha * d1), (max(y1, y2) - self.alpha * d2))
+            x2_new = random.uniform((min(x1, x2) - self.alpha * d1), (max(x1, x2) - self.alpha * d1))
+            y2_new = random.uniform((min(y1, y2) - self.alpha * d1), (max(y1, y2) - self.alpha * d2))
+            child1.set_first_gene(x1_new)
+            child1.set_second_gene(y1_new)
+            child2.set_first_gene(x2_new)
+            child2.set_second_gene(y2_new)
+            if child1.areGenesInBounds() and child2.areGenesInBounds():
+                return [child1, child2]
+        return [parent1, parent2]
+
+
+class BlendCrossAlphaBeta(BaseCrossing):
+    def __init__(self, cross_probability, alpha, beta):
+        super().__init__(cross_probability)
+        self.alpha = alpha
+        self.beta = beta
 
     def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
         child1, child2 = parent1.copy(), parent2.copy()
         if rand() < self.cross_probability:
-            cross_point1 = randint(1, parent1.chromosome_length)
-            cross_point2 = randint(cross_point1, parent1.chromosome_length)
-            cross_point3 = randint(cross_point2, parent1.chromosome_length)
-            child1.bits = parent1[:cross_point1] + \
-                parent2.bits[cross_point1:cross_point2] + \
-                parent1.bits[cross_point2:cross_point3] + \
-                parent2.bits[cross_point3:]
-            child2.bits = parent2[:cross_point1] + \
-                parent1.bits[cross_point1:cross_point2] + \
-                parent2.bits[cross_point2:cross_point3] + \
-                parent1.bits[cross_point3:]
-
-        return [child1, child2]
-
-class UniformCrossing (BaseCrossing):
-    def __init__(self, cross_probability):
-        super().__init__(cross_probability)
-
-    def cross(self, parent1: Chromosome, parent2: Chromosome) -> ChromosomeList:
-        child1, child2 = parent1.copy(), parent2.copy()
-        if rand() < self.cross_probability:
-            for i in range(parent1.chromosome_length, 2):
-                    child1.bits[i], child2.bits[i] = child2.bits[i], child1.bits[i]
-
-        return [child1, child2]
+            x1 = parent1.first_gene
+            y1 = parent1.second_gene
+            x2 = parent2.first_gene
+            y2 = parent2.second_gene
+            d1 = abs(x1 - x2)
+            d2 = abs(y1 - y2)
+            x1_new = random.uniform((min(x1, x2) - self.alpha * d1), (max(x1, x2) - self.beta * d1))
+            y1_new = random.uniform((min(y1, y2) - self.alpha * d1), (max(y1, y2) - self.beta * d2))
+            x2_new = random.uniform((min(x1, x2) - self.alpha * d1), (max(x1, x2) - self.beta * d1))
+            y2_new = random.uniform((min(y1, y2) - self.alpha * d1), (max(y1, y2) - self.beta * d2))
+            child1.set_first_gene(x1_new)
+            child1.set_second_gene(y1_new)
+            child2.set_first_gene(x2_new)
+            child2.set_second_gene(y2_new)
+            if child1.areGenesInBounds() and child2.areGenesInBounds():
+                return [child1, child2]
+        return [parent1, parent2]
 
 
 def crossing_enum(string):
-    if string == "One point":
-        return SinglePointCrossing
-    if string == "Two point":
-        return DoublePointCrossing
-    if string == "Three point":
-        return TriplePointCrossing
-    if string == "Homogeneous":
-        return SinglePointCrossing
+    if string == "Blend Alpha Beta":
+        return BlendCrossAlphaBeta
+    if string == "Blend Alpha":
+        return BlendCrossAlpha
+    if string == "Linear":
+        return LinearCross
+    if string == "Arithmetic":
+        return ArithmeticCross
+    if string == "Average":
+        return AverageCross

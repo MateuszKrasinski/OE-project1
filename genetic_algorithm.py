@@ -8,24 +8,24 @@ from mutation_algorithms import BaseMutation
 from population import Population
 from selection_algorithms import BaseSelection
 from elite_algorithm import EliteStrategy
-from inversion import InversionMutation
 import matplotlib.pyplot as plt
 
 
 class GeneticAlgorithm:
     def __init__(self, objective_fun, bounds: list[list[float]],
-                 chromosome_length: int, population_number: int, epoch: int,
+                 chromosome_accuracy: int, population_number: int, epoch: int,
                  selectionStategy: BaseSelection, crossStrategy: BaseCrossing, mutationStrategy: BaseMutation,
-                 elite_strategy: EliteStrategy, inversion_strategy: InversionMutation):
+                 elite_strategy: EliteStrategy, alpha: float, beta: float):
         self.epochs_amount = epoch
         self.selection_stategy = selectionStategy
         self.crossing_strategy = crossStrategy
         self.mutation_strategy = mutationStrategy
         self.elite_strategy = elite_strategy
-        self.inversion_strategy = inversion_strategy
+        self.alpha = alpha
+        self.beta = beta
         self.objective = objective_fun
         self.population = Population(
-            bounds, chromosome_length, population_number)
+            bounds, chromosome_accuracy, population_number)
         self.scores = []
         self.best = 0
         self.best_eval = self.population[0].score(self.objective)
@@ -88,19 +88,20 @@ class GeneticAlgorithm:
 
     def cross(self) -> Population:
         next_epoch = self.population.create_next()
-        # next_epoch.population = self.population.population
         number_of_parents = len(self.population.population)
         while len(next_epoch.population) < self.population_without_elites:
             parent1, parent2 = self.population.population[random.randint(0, number_of_parents - 1)], \
                                self.population.population[random.randint(0, number_of_parents - 1)]
-            for c in self.crossing_strategy.cross(parent1, parent2):
+            crossed = self.crossing_strategy.cross(parent1, parent2)
+            if not crossed:
+                continue
+            for c in crossed:
                 next_epoch.append(c)
         return next_epoch
 
     def mutate(self):
         for c in self.population.population:
             self.mutation_strategy.mutate(c)
-            self.inversion_strategy.inversion(c)
 
     def run(self) -> list[int, float]:
         for epoch_number in range(self.epochs_amount):
@@ -114,6 +115,7 @@ class GeneticAlgorithm:
             self.file.write("%s %s\n" % (epoch_number, self.best_eval))
             self.file_avg.write("%s %s\n" % (epoch_number, self.avg))
             self.file_standard_deviation.write("%s %s\n" % (epoch_number, self.standard_deviation))
+            # print(self.best, self.best_eval)
         self.draw_plot_best()
         self.draw_plot_avg()
         self.draw_plot_sd()

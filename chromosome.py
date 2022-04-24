@@ -1,56 +1,37 @@
 from __future__ import annotations
+
+import random
+
 from numpy.random import randint
 
 
 class Chromosome:
-    def __init__(self, chromosome_length, bounds):
+    def __init__(self, chromosome_accuracy, bounds):
         self.bounds = bounds
-        self.chromosome_length = chromosome_length
-        self.bits = randint(0, 2, chromosome_length*len(bounds)).tolist()
-
-    def decode(self) -> float:
-        decoded = list()
-        largest = 2**self.chromosome_length
-        for i in range(len(self.bounds)):
-            # extract the substring
-            start, end = i * \
-                self.chromosome_length, (i * self.chromosome_length) + \
-                self.chromosome_length
-            substring = self.bits[start:end]
-            # convert bitstring to a string of chars
-            chars = ''.join([str(s) for s in substring])
-            # convert string to integer
-            integer = int(chars, 2)
-            # scale integer to desired range
-            value = self.bounds[i][0] + (integer/largest) * \
-                (self.bounds[i][1] - self.bounds[i][0])
-            # store
-            decoded.append(value)
-        return decoded
+        self.chromosome_accuracy = chromosome_accuracy
+        self.first_gene = round(random.uniform(bounds[0][0], bounds[0][1]), chromosome_accuracy)
+        self.second_gene = round(random.uniform(bounds[1][0], bounds[1][1]), chromosome_accuracy)
 
     def score(self, desired_function: function) -> float:
-        return desired_function(self.decode())
-
-    def __index__(self):
-        return len(self.bits)
+        return desired_function([self.first_gene, self.second_gene])
 
     def copy(self) -> Chromosome:
-        copy = Chromosome(self.chromosome_length, self.bounds)
-        copy.bits = self.bits
+        copy = Chromosome(self.chromosome_accuracy, self.bounds)
+        copy.first_gene = self.first_gene
+        copy.second_gene = self.second_gene
         return copy
 
-    def __getitem__(self, key):
-        return self.bits[key]
+    def set_first_gene(self, first_gene):
+        self.first_gene = round(first_gene, self.chromosome_accuracy)
 
-    def __setitem__(self, key, value):
-        self.bits[key] = value
-
-    def __iter__(self):
-        return iter(self.bits)
+    def set_second_gene(self, second_gene):
+        self.second_gene = round(second_gene, self.chromosome_accuracy)
 
     def __str__(self) -> str:
-        return str(self.bits)
-    def __len__(self):
-        return self.chromosome_length
+        return [str(self.first_gene), (self.second_gene)].__str__()
 
+    def areGenesInBounds(self):
+        if self.bounds[0][0] <= self.first_gene <= self.bounds[0][1] and self.bounds[1][0] <= self.second_gene <= self.bounds[1][1]:
+            return True
+        return False
 ChromosomeList = list[Chromosome]

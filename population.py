@@ -4,23 +4,20 @@ from chromosome import Chromosome
 
 
 class Population:
-    def __init__(self, bounds: list[list[float]], chromosome_length: int, population_number: int, createPopul=True):
+    def __init__(self, bounds: list[list[float]], chromosome_accuracy: int, population_number: int, createPopul=True):
         self.size = population_number
         self.bounds = bounds
-        self.chromosome_length = chromosome_length
+        self.chromosome_accuracy = chromosome_accuracy
         self.population = []
         if createPopul:
-            self.population = [Chromosome(chromosome_length, bounds)
+            self.population = [Chromosome(chromosome_accuracy, bounds)
                                for _ in range(population_number)]
 
-    def decodeAll(self) -> list[float]:
-        return [p.decode() for p in self.population]
-
     def scoreAll(self, desired_function: function) -> list[float]:
-        return [desired_function(p.decode()) for p in self.population]
+        return [desired_function([p.first_gene, p.second_gene]) for p in self.population]
 
     def create_next(self) -> Population:
-        return Population(self.bounds, self.chromosome_length, self.size, False)
+        return Population(self.bounds, self.chromosome_accuracy, self.size, False)
 
     def append(self, list):
         self.population.append(list)
